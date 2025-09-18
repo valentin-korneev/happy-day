@@ -1,0 +1,15 @@
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+    <h3>Сообщение успешно отправлено</h3>
+    <br>
+    <br>
+    <p>
+        {% for msg in message_lines %}
+            {{ msg }}<br>
+        {% endfor %}
+    </p>
+    <br>
+    <br>
+    <a href=".." class="button default">Готово</a>
+{% endblock %}

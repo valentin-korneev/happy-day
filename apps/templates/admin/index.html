@@ -1,0 +1,22 @@
+{% extends "admin/index.html" %}
+
+{% block sidebar %}
+<div id="content-related">
+    <div class="module" id="recent-actions-module">
+        <h2>Именинники (сегодня)</h2>
+        {% for emp in happy_staff %}
+            <p>
+                {% if emp.image %}
+                    <img src="{{ emp.image.url }}"
+                         alt="{{ emp.name }}"
+                         style="vertical-align:middle; margin-right:5px; max-height: 40px; max-width: 40px;">
+                {% endif %}
+                <a href="{{ emp.get_admin_url }}">
+                    {{ emp }}
+                </a>
+            </p>
+        {% endfor %}
+        <a href="{% url 'admin:employees_congratulate' %}" class="button" style="margin: 16px">Поздравить</a>
+    </div>
+</div>
+{% endblock %}

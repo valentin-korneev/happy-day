@@ -1,0 +1,36 @@
+<style>
+.form-row {
+    display: flex;
+    margin-bottom: 10px;
+    align-items: center;
+}
+.form-row label {
+    width: 150px; /* фиксированная ширина для выравнивания */
+    margin-right: 10px;
+    text-align: right;
+}
+.form-row input,
+.form-row select,
+.form-row textarea {
+    flex: 1;
+}
+</style>
+
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+<form method="post">
+    {% csrf_token %}
+    {% for field in form %}
+        <div class="form-row">
+          {{ field.label_tag }}
+          {{ field }}
+          {% if field.errors %}
+            <div class="error">{{ field.errors }}</div>
+          {% endif %}
+        </div>
+    {% endfor %}
+    <input type="submit" value="Далее" class="default">
+    <a href=".." class="cancel-link">Отмена</a>
+</form>
+{% endblock %}
