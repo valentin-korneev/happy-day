@@ -9,7 +9,7 @@ def custom_index(self, request, extra_context=None):
         'title': 'Администрирование',
         'app_list': self.get_app_list(request),
         **(extra_context or {}),
-        'happy_staff': Employee.birthday_staff.all()
+        'happy_staff': Employee.birthday_staff.birthday()
     }
     return TemplateResponse(request, 'admin/index.html', context)
 
