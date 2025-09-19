@@ -21,6 +21,15 @@
 {% block content %}
 <form method="post">
     {% csrf_token %}
+
+    {% if form.non_field_errors %}
+        <div class="error">
+            {% for error in form.non_field_errors %}
+                <p style="color: red">{{ error }}</p>
+            {% endfor %}
+        </div>
+    {% endif %}
+
     {% for field in form %}
         <div class="form-row">
           {{ field.label_tag }}
@@ -31,7 +40,6 @@
         </div>
     {% endfor %}
     <input type="submit" value="Далее" class="default">
-    <a href="javascript:window.location.reload();" class="button cancel-link">Перегенерировать</a>
     <a href=".." class="cancel-link">Отмена</a>
 </form>
 {% endblock %}

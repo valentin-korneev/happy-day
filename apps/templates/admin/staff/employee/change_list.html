@@ -3,6 +3,9 @@
 {% block object-tools-items %}
     {{ block.super }}
     <li>
-        <a href="{% url 'admin:employees_congratulate' %}">Поздравить</a>
+        <a href="{% url 'admin:congratulate_birthday' %}">Поздравить c Днем Рождения</a>
+    </li>
+    <li>
+        <a href="{% url 'admin:congratulate_holiday' %}">Поздравить</a>
     </li>
 {% endblock %}

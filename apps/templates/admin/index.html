@@ -16,7 +16,10 @@
                 </a>
             </p>
         {% endfor %}
-        <a href="{% url 'admin:employees_congratulate' %}" class="button" style="margin: 16px">Поздравить</a>
+        <a href="{% url 'admin:congratulate_birthday' %}" class="button" style="margin: 16px">Поздравить именинников</a>
+    </div>
+    <div class="module">
+        <a href="{% url 'admin:congratulate_holiday' %}" class="button" style="margin: 16px">Поздравить с праздником</a>
     </div>
 </div>
 {% endblock %}

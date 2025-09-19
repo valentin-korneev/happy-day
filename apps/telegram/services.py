@@ -1,47 +1,39 @@
 import os
-
 from telebot import TeleBot
 from telebot.types import InputMediaPhoto
-
 from apps.telegram.models import Message
-from config import settings
 
 
 class TelegramService:
-    def __init__(self, chat):
-        self.chat = chat
-        self.bot_token = self.chat.bot.token
-        self.bot = TeleBot(token=self.bot_token)
+    def __init__(self, publisher):
+        self.publisher = publisher
+        self.bot = TeleBot(token=publisher.bot.token)
+        self.chat_id = publisher.chat.chat_id
 
-    def send_message(self, message, employees):
+    def send_message(self, text, images=None):
         try:
-            images = []
+            media = []
 
-            for employee in employees:
-                if employee.image and employee.image.url:
-                    relative_path = employee.image.url.replace('/media/', '')
-                    full_path = os.path.join(settings.MEDIA_ROOT, relative_path)
-                    if images:
-                        images.append(InputMediaPhoto(open(full_path, 'rb')))
-                    else:
-                        images.append(InputMediaPhoto(open(full_path, 'rb'), caption=message))
+            for image in images:
+                if media:
+                    media.append(InputMediaPhoto(open(image, 'rb')))
+                else:
+                    media.append(InputMediaPhoto(open(image, 'rb'), caption=text, parse_mode='HTML'))
 
-            if images:
+            if media:
                 self.bot.send_media_group(
-                    chat_id=self.chat.chat_id,
-                    media=images,
+                    chat_id=self.chat_id,
+                    media=media,
                 )
             else:
                 self.bot.send_message(
-                    chat_id=self.chat.chat_id,
-                    text=message,
+                    chat_id=self.chat_id,
+                    text=text,
                 )
 
-            message_obj = Message.objects.create(
-                text=message,
-                chat=self.chat,
+            Message.objects.create(
+                text=text,
+                publisher=self.publisher,
             )
-            message_obj.employees.set(employees)
-
         except Exception as e:
-            raise Exception(f"Ошибка при отправке в Telegram: {e}")
+            raise Exception(f'Ошибка при отправке в Telegram: {e}')
