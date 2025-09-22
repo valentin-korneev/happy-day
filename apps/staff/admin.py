@@ -194,7 +194,6 @@ class EmployeeAdmin(admin.ModelAdmin):
                 for row in reader:
                     if len(row) >= 4 and row[0]:
                         try:
-                            print(row)
                             full_name = row[0].split(' ')
                             if len(full_name) < 2:
                                 raise ValueError('ФИО должно состоять хотя бы из Фамилии и имени')
@@ -228,8 +227,6 @@ class EmployeeAdmin(admin.ModelAdmin):
                             position_name = row[1]
                             if position_name:
                                 emp.position = Position.objects.get_or_create(name=position_name)[0]
-
-                                print(emp.position)
 
                             department_name = row[2]
                             if department_name:

@@ -6,6 +6,11 @@ def parse_date(date_str):
     if not date_str:
         return datetime.now().date()
 
+    try:
+        return datetime.strptime(date_str, '%d/%m/%Y')
+    except:
+        pass
+
     date_str = date_str.strip().lower()
     current_year = datetime.now().year
 
@@ -21,7 +26,7 @@ def parse_date(date_str):
         'сен': 9, 'sep': 9, '09': 9, '9': 9,
         'окт': 10, 'oct': 10, '10': 10,
         'ноя': 11, 'nov': 11, '11': 11,
-        'дек': 12, 'dec': 12, '12': 12
+        'дек': 12, 'dec': 12, '12': 12,
     }
 
     match = re.match(r'(\d{1,2})[\.\-\s]+(.+)', date_str)
