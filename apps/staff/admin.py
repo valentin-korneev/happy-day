@@ -1,6 +1,7 @@
+import csv
 import os
-
-from django.contrib import admin
+from django.contrib import admin, messages
+from django.http import HttpResponseRedirect
 from django.shortcuts import redirect, render
 from django.urls import path, reverse
 from apps.openrouter.models import Service
@@ -11,7 +12,8 @@ from apps.staff.forms import (
     CongratulationMessageForm,
 )
 from apps.staff.models import Department, Position, Employee
-from apps.telegram.models import Chat, Publisher
+from apps.staff.parse_date import parse_date
+from apps.telegram.models import Publisher
 from apps.telegram.services import TelegramService
 from config import settings
 
@@ -43,6 +45,7 @@ class EmployeeAdmin(admin.ModelAdmin):
         custom_urls = [
             path('congratulate/birthday', self.admin_site.admin_view(self.congratulate_birthday), name='congratulate_birthday'),
             path('congratulate/holiday', self.admin_site.admin_view(self.congratulate_holiday), name='congratulate_holiday'),
+            path('upload-employees/', self.upload_employees, name='upload_employees'),
         ]
         return custom_urls + urls
 
@@ -170,3 +173,83 @@ class EmployeeAdmin(admin.ModelAdmin):
 
     def congratulate_holiday(self, request):
         return self.congratulate(request)
+
+    def upload_employees(self, request):
+        if request.method == 'POST':
+            csv_file = request.FILES.get('csv_file')
+            if not csv_file:
+                messages.error(request, 'Файл не выбран')
+                return HttpResponseRedirect('../')
+
+            if not csv_file.name.endswith('.csv'):
+                messages.error(request, 'Неверный формат файла')
+                return HttpResponseRedirect('../')
+
+            try:
+                decoded_file = csv_file.read().decode('utf-8').splitlines()
+                reader = csv.reader(decoded_file)
+
+                next(reader, None)
+
+                for row in reader:
+                    if len(row) >= 4 and row[0]:
+                        try:
+                            print(row)
+                            full_name = row[0].split(' ')
+                            if len(full_name) < 2:
+                                raise ValueError('ФИО должно состоять хотя бы из Фамилии и имени')
+                            last_name = full_name[0]
+                            first_name = full_name[1]
+                            middle_name = ''
+                            if len(full_name) > 2:
+                                middle_name = ' '.join(full_name[2:])
+
+                            emp = Employee.objects.filter(
+                                first_name=first_name,
+                                last_name=last_name,
+                                middle_name=middle_name,
+                                birthday=parse_date(row[3].lower()),
+                            ).first()
+
+                            if emp is None:
+                                emp = Employee.objects.create(
+                                    first_name=first_name,
+                                    last_name=last_name,
+                                    middle_name=middle_name,
+                                    birthday=parse_date(row[3].lower()),
+                                )
+                            else:
+                                messages.success(
+                                    request,
+                                    f'Пользователь {emp.full_name} уже существует - '
+                                    f'обновлена информация о должности и подразделении'
+                                )
+
+                            position_name = row[1]
+                            if position_name:
+                                emp.position = Position.objects.get_or_create(name=position_name)[0]
+
+                                print(emp.position)
+
+                            department_name = row[2]
+                            if department_name:
+                                emp.department = Department.objects.get_or_create(name=department_name)[0]
+
+                            emp.save()
+                        except Exception as e:
+                            print(e)
+                            messages.error(request, str(e))
+
+                messages.success(request, 'Файл успешно загружен')
+            except Exception as e:
+                messages.error(request, f'Ошибка при обработке файла: {str(e)}')
+
+            return HttpResponseRedirect('../')
+
+        context = dict(
+            self.admin_site.each_context(request),
+            title='Загрузка сотрудников',
+            step=1,
+        )
+
+        return render(request, 'admin/staff/csv_upload_form.html', context)

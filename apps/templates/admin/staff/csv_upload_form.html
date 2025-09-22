@@ -1,0 +1,15 @@
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div>
+        <label for="csv_file">CSV файл:</label>
+        <input type="file" name="csv_file" id="csv_file" accept=".csv" required>
+    </div>
+    <div style="margin-top: 20px;">
+        <input type="submit" value="Загрузить" class="default">
+        <a href="../" class="button">Отмена</a>
+    </div>
+</form>
+{% endblock %}

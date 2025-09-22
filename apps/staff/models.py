@@ -32,14 +32,14 @@ class BirthdayManager(models.Manager):
 
 
 class Employee(models.Model):
-    first_name = models.CharField(max_length=255)
-    last_name = models.CharField(max_length=255)
-    middle_name = models.CharField(max_length=255, blank=True)
-    telegram_id = models.CharField(max_length=255, unique=True, blank=True, null=True)
-    department = models.ForeignKey(Department, on_delete=models.CASCADE, null=True, blank=True)
-    position = models.ForeignKey(Position, on_delete=models.CASCADE, null=True, blank=True)
-    birthday = models.DateField()
-    image = models.ImageField(upload_to='images/', blank=True)
+    first_name = models.CharField('Имя', max_length=255)
+    last_name = models.CharField('Фамилия', max_length=255)
+    middle_name = models.CharField('Отчество', max_length=255, blank=True)
+    telegram_id = models.CharField('Имя в Telegram', max_length=255, unique=True, blank=True, null=True, help_text='Без @')
+    department = models.ForeignKey(Department, on_delete=models.CASCADE, null=True, blank=True, verbose_name='Подразделение')
+    position = models.ForeignKey(Position, on_delete=models.CASCADE, null=True, blank=True, verbose_name='Должность')
+    birthday = models.DateField('День рождения')
+    image = models.ImageField('Фото', upload_to='images/', blank=True)
 
     def __str__(self):
         return f'{self.first_name} {self.last_name}'
